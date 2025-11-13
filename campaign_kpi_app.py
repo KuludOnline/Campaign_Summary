@@ -93,10 +93,16 @@ item_filter = st.text_input("Filter by item/brand name (optional, e.g., 'Auracos
 
 # load data
 def load_df(file):
-    if file is None: return None
-    if file.name.lower().endswith(".csv"):
-        return pd.read_csv(file)
-    return pd.read_excel(file)
+    if file is None:
+        return None
+    name = file.name.lower()
+    if name.endswith(".csv"):
+        return pd.read_csv(file, dtype={"phone_number": str})
+    if name.endswith((".xlsx", ".xlsm", ".xltx", ".xltm")):
+        return pd.read_excel(file, engine="openpyxl", dtype=str)
+    if name.endswith(".xls"):
+        return pd.read_excel(file, engine="xlrd", dtype=str)
+    raise ValueError(f"Unsupported file type: {name}")
 
 reach_df  = load_df(reach_file)
 buyers_df = load_df(buyers_file)
